@@ -1,0 +1,62 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+
+metadata:
+
+    name: gcloud-preemptible-starter
+
+spec:
+    
+    schedule: "*/5 * * * *"
+    
+    jobTemplate:
+    
+        spec:
+            
+            template:
+            
+                spec:
+
+                    containers:
+                    
+                      - name: gcloud-preemptible-starter
+                        image: google/cloud-sdk:183.0.0-alpine
+                    
+                        args:
+
+                            - /bin/sh
+                            - -c
+                            - gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start centos-1 --project $(PROJECT) --zone $(ZONE)
+                        
+                        env:
+
+                          - name: PROJECT
+                            valueFrom:
+                                configMapKeyRef:
+                                    name: gcloud-config
+                                    key: PROJECT
+                                
+                          - name: ZONE
+                            valueFrom:
+                                configMapKeyRef:
+                                    name: gcloud-config
+                                    key: ZONE
+
+                        volumeMounts:
+
+                          - name: gcloud-service-account
+                            mountPath: /config
+                            readOnly: true
+
+                    restartPolicy: Never
+
+                    volumes:
+
+                      - name: gcloud-config
+                        configMap:
+                            name: gcloud-config
+
+                      - name: gcloud-service-account
+                        secret:
+                            secretName: gcloud-service-account
+

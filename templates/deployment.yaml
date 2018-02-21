@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+
+metadata:
+
+    name: gcloud-preemptible-starter
+
+    labels:
+
+        app: gcloud-preemptible-starter
+spec:
+    
+    replicas: 1
+
+    template:
+
+        metadata:
+
+            labels:
+
+                app: gcloud-preemptible-starter
+    
+        spec:
+            
+            containers:
+            
+              - name: gcloud-preemptible-starter
+                image: google/cloud-sdk:183.0.0-alpine
+            
+                args:
+
+                    - /bin/sh
+                    - -c
+                    - gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start centos-1 --project $(PROJECT) --zone $(ZONE)
+                
+                env:
+
+                    - name: PROJECT
+                      valueFrom:
+                        configMapKeyRef:
+                            name: gcloud-config
+                            key: PROJECT
+                        
+                    - name: ZONE
+                      valueFrom:
+                        configMapKeyRef:
+                            name: gcloud-config
+                            key: ZONE
+
+                volumeMounts:
+
+                    - name: gcloud-service-account
+                      mountPath: /config
+                      readOnly: true
+
+            volumes:
+
+                - name: gcloud-config
+                  configMap:
+                    name: gcloud-config
+
+                - name: gcloud-service-account
+                  secret:
+                    secretName: gcloud-service-account
+
