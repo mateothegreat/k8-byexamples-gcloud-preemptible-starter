@@ -7,7 +7,7 @@ metadata:
 
 spec:
     
-    schedule: "*/5 * * * *"
+    schedule: "*/15 * * * *"
     
     jobTemplate:
     
@@ -26,7 +26,7 @@ spec:
 
                             - /bin/sh
                             - -c
-                            - gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start centos-1 --project $(PROJECT) --zone $(ZONE)
+                            - gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start $(INSTANCE_NAME) --project $(PROJECT) --zone $(ZONE)
                         
                         env:
 
@@ -41,6 +41,12 @@ spec:
                                 configMapKeyRef:
                                     name: gcloud-config
                                     key: ZONE
+                                
+                          - name: INSTANCE_NAME
+                            valueFrom:
+                                configMapKeyRef:
+                                    name: gcloud-config
+                                    key: INSTANCE_NAME
 
                         volumeMounts:
 

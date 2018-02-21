@@ -5,3 +5,4 @@ metadata:
 data:
   PROJECT: $PROJECT
   ZONE: $ZONE
+  INSTANCE_NAME: $INSTANCE_NAME
