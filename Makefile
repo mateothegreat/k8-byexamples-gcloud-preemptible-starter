@@ -16,6 +16,8 @@ test:
   					$(IMAGE) 	\
 					/bin/sh -c 'gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start $(INSTANCE_NAME) --project $(PROJECT) --zone $(ZONE)'
 
+install: secret/create
+
 secret/create:
 
 	kubectl create secret generic gcloud-service-account --from-file=config/service_account.json
