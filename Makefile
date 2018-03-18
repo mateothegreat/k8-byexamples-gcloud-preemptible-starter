@@ -7,7 +7,7 @@ IMAGE			?= google/cloud-sdk:183.0.0-alpine
 PROJECT			?= streaming-platform-devqa
 ZONE 			?= us-central1-a
 INSTANCE_NAME	?= centos-1
-
+KEY_PATH        ?= config/gcp-streaming-platform-devqa-e158812b35a9.json
 ## Use gcloud to start an instance (make run PROJECT=.. ZONE=..)
 test: 
 
@@ -20,4 +20,4 @@ install: secret/create
 
 secret/create:
 
-	kubectl create secret generic gcloud-service-account --from-file=config/service_account.json
+	kubectl create secret generic gcloud-service-account --from-file=$(KEY_PATH)
