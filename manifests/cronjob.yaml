@@ -2,76 +2,54 @@ apiVersion: batch/v1beta1
 kind: CronJob
 
 metadata:
-
-    name: gcloud-preemptible-starter
-
+  name: gcloud-preemptible-starter
 spec:
-    
-    schedule: "*/15 * * * *"
-    
-    jobTemplate:
-    
+  schedule: "* * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
         spec:
-            
-            template:
-            
-                spec:
-
-                    containers:
-                    
-                      - name: gcloud-preemptible-starter
-                        image: google/cloud-sdk:183.0.0-alpine
-                        
-                        resources:
-
-                            requests:
-                                cpu: 0.1
-                                memory: 128M
-                        
-                            limits:
-                                memory: 512M
-                        
-                        args:
-
-                            - /bin/sh
-                            - -c
-                            - gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start $(INSTANCE_NAME) --project $(PROJECT) --zone $(ZONE)
-                        
-                        env:
-
-                          - name: PROJECT
-                            valueFrom:
-                                configMapKeyRef:
-                                    name: gcloud-config
-                                    key: PROJECT
-                                
-                          - name: ZONE
-                            valueFrom:
-                                configMapKeyRef:
-                                    name: gcloud-config
-                                    key: ZONE
-                                
-                          - name: INSTANCE_NAME
-                            valueFrom:
-                                configMapKeyRef:
-                                    name: gcloud-config
-                                    key: INSTANCE_NAME
-
-                        volumeMounts:
-
-                          - name: gcloud-service-account
-                            mountPath: /config
-                            readOnly: true
-
-                    restartPolicy: Never
-
-                    volumes:
-
-                      - name: gcloud-config
-                        configMap:
-                            name: gcloud-config
-
-                      - name: gcloud-service-account
-                        secret:
-                            secretName: $APP
-
+          containers:
+            - name: gcloud-preemptible-starter
+              image: google/cloud-sdk:183.0.0-alpine
+              resources:
+                requests:
+                  cpu: 0.1
+                  memory: 128M
+                limits:
+                  memory: 512M
+              args:
+                - /bin/sh
+                - -c
+                - gcloud auth activate-service-account --key-file /config/*.json && gcloud compute instances start $(INSTANCE_NAME) --project $(PROJECT) --zone $(ZONE)
+              env:
+                - name: PROJECT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: gcloud-config
+                      key: PROJECT
+                - name: ZONE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: gcloud-config
+                      key: ZONE
+                - name: INSTANCE_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      name: gcloud-config
+                      key: INSTANCE_NAME
+              volumeMounts:
+                - name: gcloud-service-account
+                  mountPath: /config
+                  readOnly: true
+          restartPolicy: Never
+          volumes:
+            - name: gcloud-config
+              configMap:
+                name: gcloud-config
+            - name: gcloud-service-account
+              secret:
+                secretName: $APP

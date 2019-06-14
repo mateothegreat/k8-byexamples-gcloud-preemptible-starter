@@ -9,14 +9,14 @@ ZONE 			?= us-east1-b
 INSTANCE_NAME	?= centos-1
 KEY_PATH        ?= config/preemptible-restarter.json
 ## Use gcloud to start an instance (make run PROJECT=.. ZONE=..)
-test: 
+test:
 
 	@docker run -i 	-v $(PWD)/config:/config \
   					--rm 		\
   					$(IMAGE) 	\
 					/bin/sh -c 'gcloud auth activate-service-account --key-file /config/service_account.json && gcloud compute instances start $(INSTANCE_NAME) --project $(PROJECT) --zone $(ZONE)'
 
-install: secret-create
+#install: secret-create
 
 secret-create:
 
