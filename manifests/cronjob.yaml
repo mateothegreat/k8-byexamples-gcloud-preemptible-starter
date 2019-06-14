@@ -73,5 +73,5 @@ spec:
 
                       - name: gcloud-service-account
                         secret:
-                            secretName: gcloud-service-account
+                            secretName: $APP
 
